@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
-project(lem_in2 C)
+project(lem_in C)
 
 set(CMAKE_C_STANDARD 11)
 
 include_directories(libft)
 
-add_library(lem_in2 libft/ft_atoi.c
+add_executable(lem_in
+        libft/ft_atoi.c
         libft/ft_bzero.c
         libft/ft_isalnum.c
         libft/ft_isalpha.c
@@ -69,4 +70,4 @@ add_library(lem_in2 libft/ft_atoi.c
         libft/ft_toupper.c
         libft/libft.h
         main.c lem_in.h
-        get_next_line.c read_data.c lists.h make_graf.c)
+        get_next_line.c read_data.c lists.h make_graf.c find_ways.c go_lem.c get_ways.c)

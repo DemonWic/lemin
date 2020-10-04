@@ -22,9 +22,7 @@ typedef struct  s_link
 
 typedef struct  s_node
 {
-	char        *name;
-	int         x;
-	int         y;
+	t_room      *room;
 	char        **rel;
 }               t_node;
 
@@ -70,5 +68,8 @@ typedef struct  s_data
 int			    get_next_line(const int fd, char **line);
 int		        read_data(t_data *data);
 int             make_graf(t_data *data);
+t_wlist         *get_ways(t_data *data);
+int             find_ways(t_data *data);
+int             go_lem(t_data *data);
 
 #endif

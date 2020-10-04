@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc liblem_in2.a  CMakeFiles/lem_in2.dir/library.c.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib liblem_in2.a

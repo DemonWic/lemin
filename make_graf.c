@@ -5,9 +5,7 @@ t_node  *make_node(t_room *room, t_data *data)
 	t_node  *ret;
 	
 	ret = (t_node*)malloc(sizeof(t_node));
-	ret->name = room->name;
-	ret->x = room->x;
-	ret->y = room->y;
+	ret->room = room;
 	ret->rel = NULL;
 	if (room->marker == 1)
 	{
