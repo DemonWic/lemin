@@ -6,6 +6,8 @@
 # include <stdio.h>
 # include <limits.h>
 
+# define MAP_SIZE 4000
+
 typedef struct  s_room
 {
 	int         x;
@@ -20,11 +22,15 @@ typedef struct  s_link
 	char        *s2;
 }               t_link;
 
-typedef struct  s_node
+typedef struct      s_node
 {
-	t_room      *room;
-	char        **rel;
-}               t_node;
+	char            *name;
+	int             x;
+	int             y;
+	char            *rel;
+	int             marker;
+	struct s_node   *next;
+}                   t_node;
 
 typedef struct  s_ukaz
 {
@@ -34,16 +40,18 @@ typedef struct  s_ukaz
 
 typedef struct  s_way
 {
-	t_clist     *way;
+	char        *way[MAP_SIZE];
 	int         len;
 }               t_way;
 
 typedef struct  s_fdata
 {
-	t_clist *open;
-	t_clist *closed;
-	t_ukaz  uks[1000];
+	char    *open[MAP_SIZE];
+	char    *closed[MAP_SIZE];
+	t_ukaz  uks[MAP_SIZE];
 	int     u_len;
+	int     o_len;
+	int     c_len;
 }               t_fdata;
 
 typedef struct  s_lem
@@ -51,17 +59,18 @@ typedef struct  s_lem
 	t_way       *way;
 	char        *pos;
 	int         n;
+	int         finished;
 }               t_lem;
 
 typedef struct  s_data
 {
 	t_node      *start;
 	t_node      *end;
-	t_rlist     *rooms;
-	t_llist     *links;
-	t_nlist     *nodes;
-	t_wlist     *ways;
+	t_node      *nodes;
+	t_way       *ways[MAP_SIZE];
+	int         w_count;
 	int         col;
+	int         ant_count;
 	int         cur_n;
 }               t_data;
 

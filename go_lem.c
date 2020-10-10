@@ -1,122 +1,124 @@
 #include "lem_in.h"
 
-int     add_lem(t_data *data, t_way *way, t_lemlist *lems)
+int     add_lem(t_data *data, int i, t_lem *lems[data->ant_count], int cur_lems)
 {
-	t_lemlist   *new;
-	t_lemlist   *tmp;
+	t_lem   *new;
 	
-	new = (t_lemlist*)malloc(sizeof(t_lemlist));
-	new->lem = (t_lem*)malloc(sizeof(t_lem));
-	new->lem->n = data->cur_n++;
-	new->lem->way = way;
-	new->lem->pos = NULL;
-	new->next = NULL;
+	new = (t_lem*)malloc(sizeof(t_lem));
+	new->way = data->ways[i];
+	new->n = cur_lems + 1;
+	new->pos = data->ways[i]->way[0];
+	new->finished = 0;
+	lems[cur_lems] = new;
 	data->col--;
-	if (!lems)
+	data->cur_n++;
+	return (++cur_lems);
+}
+
+int     count_min_lems(t_data *data, int a)
+{
+	int     i;
+	int     res;
+	
+	res = 0;
+	i = 0;
+	while (i <= a)
 	{
-		lems = new;
-		return (1);
+		res += data->ways[i]->len - data->ways[0]->len + 1;
+		i++;
 	}
-	tmp = lems;
-	while (tmp->next)
-		tmp = tmp->next;
-	tmp->next = new;
+	return (res);
+}
+int     new_lems(t_data *data, t_lem *lems[data->ant_count], int cur_lems)
+{
+	int     i;
+	
+	i = 0;
+	while (i <= data->w_count)
+	{
+		if (data->col >= count_min_lems(data, i))
+		{
+			cur_lems = add_lem(data, i, lems, cur_lems);
+			ft_putchar('L');
+			ft_putstr(ft_itoa(cur_lems));
+			ft_putchar('-');
+			ft_putstr(lems[cur_lems - 1]->way->way[0]);
+			ft_putchar(' ');
+		}
+		else
+			break ;
+		i++;
+	}
+	return (cur_lems);
+}
+
+char    *get_next_pos(char *cur, t_way *way)
+{
+	int     i;
+	
+	i = 0;
+	while (i < way->len)
+	{
+		if (ft_strcmp(cur, way->way[i]) == 0)
+		{
+			free(cur);
+			return (ft_strdup(way->way[i + 1]));
+		}
+	}
+	free(cur);
+	return (NULL);
+}
+
+int     end_lem(t_data *data, t_lem *lems[data->ant_count], int i)
+{
+	ft_putchar('L');
+	ft_putstr(ft_itoa(lems[i]->n));
+	ft_putchar('-');
+	ft_putstr(data->end->name);
+	ft_putchar(' ');
+	lems[i]->finished = 1;
+	data->cur_n--;
 	return (1);
 }
 
-t_lemlist   *new_lems(t_data *data, t_wlist *ways, t_lemlist *lems)
+int     make_step(t_data *data, t_lem *lems[data->ant_count], int cur_lems)
 {
-	t_wlist *cur;
-	int     pred;
+	int     i;
 	
-	cur = ways;
-	pred = 0;
-	while (cur)
+	i = 0;
+	while (i < cur_lems)
 	{
-		if (data->col > cur->way->len * pred)
-			add_lem(data, cur->way, lems);
-		else
-			break ;
-		pred++;
-		cur = cur->next;
-	}
-	return (lems);
-}
-
-char    *get_next_pos(char *cur, t_clist *way)
-{
-	t_clist *tmp;
-	
-	tmp = way;
-	if (!cur)
-		return (tmp->val);
-	while (ft_strcmp(tmp->val, cur) != 0)
-		tmp = tmp->next;
-	if (!tmp->next)
-		return (NULL);
-	return (tmp->next->val);
-}
-
-int     end_lem(t_lemlist *lems, t_data *data, t_lemlist *cur)
-{
-	t_lemlist   *tmp;
-	t_lemlist   *prev;
-	
-	prev = NULL;
-	tmp = lems;
-	ft_putchar('L');
-	ft_putstr(ft_itoa(cur->lem->n));
-	ft_putchar('-');
-	ft_putstr(data->end->room->name);
-	ft_putchar(' ');
-	while (tmp)
-	{
-		if (tmp->lem->n == cur->lem->n)
+		if (lems[i]->finished == 1)
+			continue ;
+		lems[i]->pos = get_next_pos(lems[i]->pos, lems[i]->way);
+		if (lems[i]->pos == NULL)
 		{
-			if (prev)
-				prev->next = tmp->next;
-			else
-				lems = tmp->next;
-			return (1);
+			end_lem(data, lems, i);
+			continue ;
 		}
-		prev = tmp;
-		tmp = tmp->next;
-	}
-	return (0);
-}
-
-int     make_step(t_lemlist *lems, t_data *data)
-{
-	t_lemlist   *cur;
-	
-	cur = lems;
-	while (cur)
-	{
-		cur->lem->pos = get_next_pos(cur->lem->pos, cur->lem->way->way);
-		if (cur->lem->pos == NULL)
-			end_lem(lems, data, cur);
 		ft_putchar('L');
-		ft_putstr(ft_itoa(cur->lem->n));
+		ft_putstr(ft_itoa(lems[i]->n));
 		ft_putchar('-');
-		ft_putstr(cur->lem->pos);
+		ft_putstr(lems[i]->pos);
 		ft_putchar(' ');
-		cur = cur->next;
+		i++;
 	}
 	return (1);
 }
 
 int     go_lem(t_data *data)
 {
-	t_wlist     *ways;
-	t_lemlist   *lems;
+	int     cur_lems;
+	t_lem   *lems[data->ant_count];
 	
-	ways = get_ways(data);
-	lems = NULL;
-	lems = new_lems(data, ways, lems);
-	while (lems)
+	cur_lems = 0;
+	data->col = data->ant_count;
+	data->cur_n = 0;
+	cur_lems = new_lems(data, lems, cur_lems);
+	while (data->cur_n > 0)
 	{
-		make_step(lems, data);
-		lems = new_lems(data, ways, lems);
+		cur_lems = make_step(data, lems, cur_lems);
+		cur_lems = new_lems(data, lems, cur_lems);
 	}
 	return (1);
 }
